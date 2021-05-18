@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 
 namespace TrackerPackage
@@ -16,7 +17,20 @@ namespace TrackerPackage
 
         public TrackerPkg(byte[] b)
         {
-            //
+            byte[] t = new byte[1];
+            byte[] d = new byte[1];
+            byte[] mi = new byte[18];
+            byte[] m = new byte[b.Length-20];
+
+            System.Buffer.BlockCopy(b, 0, t, 0, t.Length);
+            System.Buffer.BlockCopy(b, 1, d, 0, d.Length);
+            System.Buffer.BlockCopy(b, 2, mi, 0, mi.Length);
+            System.Buffer.BlockCopy(b, 20, m, 0, m.Length);
+            
+            type = int.Parse(Encoding.ASCII.GetString(t));
+            device = int.Parse(Encoding.ASCII.GetString(d));
+            message_id = Encoding.ASCII.GetString(mi);
+            message = Encoding.ASCII.GetString(m);
         }
 
         public byte[] GetBytes()

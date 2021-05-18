@@ -27,7 +27,7 @@ namespace client
             deviceNumber = rnd.Next(0,255);
             GPSMngr = new GPS();
             buffer.Limit = 4;       // Set queue (capacity)
-            locatorDelay = 5000;    // Set locatorDelay
+            locatorDelay = 10000;    // Set locatorDelay
             senderDelay = 3000;     // Set sendDelay
             serverIP = "127.0.0.1"; // Server's IP
             serverPort = 7777;      // Server's Port
@@ -41,7 +41,7 @@ namespace client
             Console.WriteLine("Starting Device Nº {0}.", deviceNumber);            
             loc.Start();
             sen.Start();
-            //lis.Start();
+            lis.Start();
 
             // End
             Console.WriteLine("Client up!");
@@ -100,13 +100,16 @@ namespace client
         {
             while(true) {
                 UdpClient client = new UdpClient(9999);
-                IPEndPoint remoteip = new IPEndPoint(IPAddress.Parse(serverIP),serverPort);
-                byte[] receivedBytes = client.Receive(ref remoteip);
-                TrackerPkg package = new TrackerPkg(receivedBytes);
-                if (package.type == 1) {
+                IPEndPoint remoteIp = new IPEndPoint(IPAddress.Parse(serverIP),0);
+                byte[] receivedBytes = client.Receive(ref remoteIp);
+                    client.Close();
+                TrackerPkg response = new TrackerPkg(receivedBytes);
+                TrackerPkg package = buffer.TryPeek();
+                if (package.type == 1 && package.message_id == response.message_id) {
                     buffer.TryDequeue();
                 }
-            }
+                Console.WriteLine("\tLast package delivered sucessfully (Removed from queue).");
+            }          
         }
     }
 }
